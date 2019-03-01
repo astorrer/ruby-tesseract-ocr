@@ -1,3 +1,7 @@
+lib = File.expand_path("../lib", __FILE__)
+$LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
+
+# Set gem version here.
 Kernel.load 'lib/tesseract/version.rb'
 
 Gem::Specification.new {|s|
@@ -10,10 +14,12 @@ Gem::Specification.new {|s|
 	s.summary  = 'A wrapper library to the tesseract-ocr API.'
 	s.license  = 'BSD'
 
-	s.files         = `git ls-files`.split("\n")
-	s.executables   = `git ls-files -- bin/*`.split("\n").map { |f| File.basename(f) }
-	s.test_files    = `git ls-files -- {test,spec,features}/*`.split("\n")
-	s.require_paths = ['lib']
+	s.files         = Dir.chdir(File.expand_path('..', __FILE__)) do
+    `git ls-files -z`.split("\x0").reject { |f| f.match(%r{^(test|spec|features)/}) }
+  end
+  s.bindir        = "exe"
+  s.executables   = s.files.grep(%r{^exe/}) { |f| File.basename(f) }
+	s.require_paths = ["lib"]
 
 	s.add_dependency 'call-me'
 	s.add_dependency 'iso-639'
